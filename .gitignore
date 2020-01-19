@@ -1,0 +1,8 @@
+*.iml
+.idea
+.DS_Store
+node_modules
+settings.development.json
+settings-production.json
+local
+private
