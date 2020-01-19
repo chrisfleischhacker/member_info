@@ -1,6 +1,6 @@
 # member_info
 
-clone
+git clone https://github.com/chrisfleischhacker/member_info.git
 
 cd app
 
