@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
 import { Members } from '../member/Member';
-import { Accounts } from 'meteor/accounts-base';
 
 
 Meteor.methods({
@@ -9,7 +8,7 @@ Meteor.methods({
   'users.removeAll'() {
     if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
       console.log('deleting non admin users');
-      const result = users.remove({'roles': {$ne : 'admin'}});
+      const result = Meteor.users.remove({'roles': {$ne : 'admin'}});
       console.log(result + ' users deleted');
     }
   },  
@@ -27,7 +26,16 @@ Meteor.methods({
       console.log('importing members');
       var data = JSON.parse(Assets.getText("memberData.json"));
       data.memberData.forEach(function (item, index, array) {
-        Members.insert(item);
+        // Members.insert(item);
+        if (item.Ph1 > 1) {
+          console.log(`  Adding: ${item.email.toLowerCase()}`);
+          Accounts.createUser({
+            username: item.email.toLowerCase(),
+            email: item.email.toLowerCase(),
+            password: 'pf'+item.Ph1
+          });
+          Members.insert(item);
+        }
       })
       var result = Members.find().count();
       console.log(result + ' members imported');

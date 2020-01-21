@@ -33,8 +33,9 @@ class ListMembersAdmin extends React.Component {
   reloadMembers(event) {
     console.log('reload all members clicked');
     event.preventDefault();
+    Meteor.call('users.removeAll');
     Meteor.call('members.removeAll');
-    Meteor.call('members.importAll', function (err, res) {
+    Meteor.call('members.importAll', async function (err, res) {
       if (err) {
         console.log(err);
       } else {
@@ -127,9 +128,9 @@ class MemberItemAdmin extends React.Component {
         <Table.Cell>{this.props.member.FirstName}</Table.Cell>
         <Table.Cell>{this.props.member.LastName}</Table.Cell>
         <Table.Cell>{this.props.member.email}</Table.Cell>
-        <Table.Cell>
-          {/* <button id={this.props.member.SS} onClick={this.resetMemberLogin}>&#8634;</button> */}
-        </Table.Cell>
+{/*         <Table.Cell>
+          <button id={this.props.member.SS} onClick={this.resetMemberLogin}>&#8634;</button>
+        </Table.Cell> */}
         <Table.Cell>{this.props.member.Card}</Table.Cell>
         <Table.Cell>{formatPhoneNumber(this.props.member.Ph1)}</Table.Cell>
         <Table.Cell>{this.props.member.City}</Table.Cell>
