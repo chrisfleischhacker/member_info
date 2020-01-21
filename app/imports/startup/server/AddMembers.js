@@ -5,15 +5,22 @@ import { Members } from '../../api/member/Member.js';
 
 /** Initialize the database with a default data document. */
 function addMemberData(data) {
-  console.log(`  Adding: ${data.SS} (${data.email.toLowerCase()})`);
-  Members.insert(data);
+  if (data.Ph1 > 1) {
+    console.log(`  Adding: ${data.email.toLowerCase()}`);
+    Accounts.createUser({
+      username: data.email.toLowerCase(),
+      email: data.email.toLowerCase(),
+      password: 'pf'+data.Ph1
+    });
+    Members.insert(data);
+  }
 }
 
 /** Initialize the collection if empty. */
 if (Members.find().count() === 0) {
   var data = JSON.parse(Assets.getText("memberData.json"));
   if (data) {
-    console.log('Importing member data.');
+    console.log(`  Importing ${Members.find().count()} members data.`);
     data.memberData.map(data => addMemberData(data));
   }
 }

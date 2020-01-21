@@ -18,6 +18,13 @@ Meteor.publish('AdminListMembers', function publish() {
   return this.ready();
 });
 
+Meteor.publish('AdminThisMember', function publish() {
+  if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
+    return Members.find({ email: thisMemberEmail });
+  }
+  return this.ready();
+});
+
 /* Meteor.publish('GetMyInfo', function publish() {
   if (Roles.userIsInRole(this.userId, 'admin'))
   //(this.userId) 

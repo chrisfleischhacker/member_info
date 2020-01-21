@@ -11,7 +11,7 @@ import { withRouter, Link, useParams, Switch } from 'react-router-dom';
 let formatPhoneNumber = (str) => {
   //Filter only numbers from the input
   let cleaned = ('' + str).replace(/\D/g, '');
-  
+
   //Check if the input is of correct length
   let match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
 
@@ -35,11 +35,11 @@ class ListMembersAdmin extends React.Component {
     event.preventDefault();
     Meteor.call('members.removeAll');
     Meteor.call('members.importAll', function (err, res) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log('members inserted');
-        }
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('members inserted');
+      }
     });
   }
 
@@ -51,68 +51,92 @@ class ListMembersAdmin extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() {
     return (
-        <Container>
-          <Header as="h2" textAlign="center">Member List</Header>
-          <div>
-            {/* <button className="btn btn-danger" onClick={this.reloadMembers.bind()}>Reload Members</button> */}
-            
-            To reload member data:
+      <Container>
+        <Header as="h2" textAlign="center">Member List</Header>
+        <div>
+          <button className="btn btn-danger" onClick={this.reloadMembers.bind()}>Reload Members</button>
+        </div>
+        <div>
+          To reload member data:
             </div>
-          <div>
-        <input type="file" onChange={this.handleFileSelect}/>
+        <div>
+          <input type="file" onChange={this.handleFileSelect} />
 
-      </div>
-          <Table celled>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell>FirstName</Table.HeaderCell>
-                <Table.HeaderCell>LastName</Table.HeaderCell>
-                <Table.HeaderCell>Email</Table.HeaderCell>
-                <Table.HeaderCell>&nbsp;</Table.HeaderCell>
-                <Table.HeaderCell>Card</Table.HeaderCell>
-                <Table.HeaderCell>Phone</Table.HeaderCell>
-                <Table.HeaderCell>City</Table.HeaderCell>
-                <Table.HeaderCell>&nbsp;</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {this.props.members.map((members) => <MemberItemAdmin key={members.email} member={members} />)}
-            </Table.Body>
-          </Table>
-        </Container>
+        </div>
+        <Table celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>FirstName</Table.HeaderCell>
+              <Table.HeaderCell>LastName</Table.HeaderCell>
+              <Table.HeaderCell>Email</Table.HeaderCell>
+              {/*               <Table.HeaderCell>&nbsp;</Table.HeaderCell> */}
+              <Table.HeaderCell>Card</Table.HeaderCell>
+              <Table.HeaderCell>Phone</Table.HeaderCell>
+              <Table.HeaderCell>City</Table.HeaderCell>
+              <Table.HeaderCell>&nbsp;</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          <Table.Body>
+            {this.props.members.map((members) => <MemberItemAdmin key={members.email} member={members} />)}
+          </Table.Body>
+        </Table>
+      </Container>
     );
   }
 }
 
 class MemberItemAdmin extends React.Component {
 
+  /*   resetMemberLogin(e) {
+      e.preventDefault();
+      var thisMember = e.target.id;
+      console.log(buttonName);
+      event.preventDefault();
+      Meteor.call('member.resetLogin', {thisMemberEmail: e.target.id}, function (err, res) {
+          if (err) {
+              console.log(err);
+          } else {
+              console.log('got member');
+          }
+      });
+    } */
+
+  showMember(e) {
+    e.preventDefault();
+    var buttonName = e.target.id;
+    console.log(buttonName);
+    event.preventDefault();
+    Meteor.call('impersonate', userId, function (err) {
+      if (!err) {
+        Meteor.connection.setUserId(userId);
+        Router.go('member');
+      }
+    });
+    /*     Meteor.call('member.getOneByEmail', { thisMemberEmail: e.target.id }, function (err, res) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('got member');
+          }
+        }); */
+  }
+
   render() {
     return (
       <Table.Row>
-      <Table.Cell>{this.props.member.FirstName}</Table.Cell>
-      <Table.Cell>{this.props.member.LastName}</Table.Cell>
-      <Table.Cell>{this.props.member.email}</Table.Cell>
-      <Table.Cell>
-        <Link to={'/member/'}>&#8634;</Link>
-      </Table.Cell>
-      <Table.Cell>{this.props.member.Card}</Table.Cell>
-      <Table.Cell>{formatPhoneNumber(this.props.member.Ph1)}</Table.Cell>
-      <Table.Cell>{this.props.member.City}</Table.Cell>
-      <Table.Cell>
-      {/* <Link to={{pathname: `/member/`, search: '?id=' + this.props.member.email, hash: '#hash', state: {isAdmin:true}}}>Show</Link> */}
-
-{/*       <button onClick={this.showThisMember(this.props.member.email)} type="button">
-          Show
-        </button> */}
-
-{/* <Link to={{pathname:'/member/',memberProps:{memberEmail:this.props.member.email}}} >&#9658;</Link> */}
-
-      {/* <Link to={{pathname: '/member/',state:{pEmail:this.props.member.email}}}>&#9658;</Link> */}
-
-      <Link to={'/member/'}>&#8594;</Link>
-
-      </Table.Cell>
-    </Table.Row>
+        <Table.Cell>{this.props.member.FirstName}</Table.Cell>
+        <Table.Cell>{this.props.member.LastName}</Table.Cell>
+        <Table.Cell>{this.props.member.email}</Table.Cell>
+        <Table.Cell>
+          {/* <button id={this.props.member.SS} onClick={this.resetMemberLogin}>&#8634;</button> */}
+        </Table.Cell>
+        <Table.Cell>{this.props.member.Card}</Table.Cell>
+        <Table.Cell>{formatPhoneNumber(this.props.member.Ph1)}</Table.Cell>
+        <Table.Cell>{this.props.member.City}</Table.Cell>
+        <Table.Cell>
+          <button id={this.props.member.email} onClick={this.showMember}>&#8594;</button>
+        </Table.Cell>
+      </Table.Row>
     );
   }
 }
