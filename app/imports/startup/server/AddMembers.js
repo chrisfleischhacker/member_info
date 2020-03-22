@@ -11,7 +11,7 @@ function addMemberData(data) {
     Accounts.createUser({
       username: data.email.toLowerCase(),
       email: data.email.toLowerCase(),
-      password: 'pf'+data.Ph1
+      password: data.SS.toString().slice(-4)+data.Ph1.toString()
     });
     Members.insert(data);
   }

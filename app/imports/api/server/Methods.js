@@ -25,6 +25,7 @@ Meteor.methods({
     if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
       console.log('importing members');
       var data = JSON.parse(Assets.getText("memberData.json"));
+	  
       data.memberData.forEach(function (item, index, array) {
         // Members.insert(item);
         if (item.Ph1 > 1) {
@@ -32,7 +33,7 @@ Meteor.methods({
           Accounts.createUser({
             username: item.email.toLowerCase(),
             email: item.email.toLowerCase(),
-            password: 'pf'+item.Ph1
+            password: item.SS.toString().slice(-4)+item.Ph1.toString()
           });
           Members.insert(item);
         }
@@ -42,6 +43,19 @@ Meteor.methods({
     }
   },
 
+'members.uploadAll': function(fileName, fileText){
+    console.log('(' + fileName + ') ' + fileText);
+},
+  
+/*      'members.uploadAll': function (fileName, fileData) {
+      console.log('>> received file >> ' + fileName + ' data: ' + fileData.result); 
+//      console.log('>> received file >> ' + fileInfo.name + ' data: ' + fileData); 
+	  return 'xxx';
+   },
+ */
+ 
+ 
+ 
   impersonate: function(userId) {
     check(userId, String);
     console.log(userId);

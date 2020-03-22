@@ -30,6 +30,51 @@ showThisMember = (str) => {
 /** Renders a table containing all of the Member documents. Use <MemberItemAdmin> to render each row. */
 class ListMembersAdmin extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: null
+    };
+    this.handleFileSelect = this.handleFileSelect.bind(this);
+  }
+
+  displayData(content) {
+    this.setState({data: content});
+  }
+  
+  handleFileSelect(evt) {
+    let files = evt.target.files;
+    if (!files.length) {
+      alert('No file select');
+      return;
+    }
+    let file = files[0];
+    let that = this;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+		Meteor.call('members.uploadAll',file.name, e.target.result);
+      that.displayData(e.target.result);
+    };
+    reader.readAsText(file);
+  }
+
+  xxxhandleFileSelect(event) {
+    console.log('upload members clicked');
+    event.preventDefault();
+
+/*     Meteor.call('users.removeAll');
+    Meteor.call('members.removeAll'); */
+	
+    var file = event.target.files[0]; //assuming you have only 1 file
+    if (!file) return;
+    var reader = new FileReader(); //create a reader according to HTML5 File API
+    reader.onload = function(event){          
+      var fileText = new utf8(reader.result) // convert to binary
+      Meteor.call('members.uploadAll',fileText);
+    }
+    reader.readAsText(file); //read the file as arraybuffer
+  }
+
   reloadMembers(event) {
     console.log('reload all members clicked');
     event.preventDefault();
@@ -51,6 +96,7 @@ class ListMembersAdmin extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() {
+const data = this.state.data;
     return (
       <Container>
         <Header as="h2" textAlign="center">Member List</Header>
@@ -61,8 +107,8 @@ class ListMembersAdmin extends React.Component {
           To reload member data:
             </div>
         <div>
-          <input type="file" onChange={this.handleFileSelect} />
-
+          <input type="file" name="filetoupload" id="selectfiletoupload" onChange={this.handleFileSelect} />
+{ data && <p> {data} </p> }
         </div>
         <Table celled>
           <Table.Header>
