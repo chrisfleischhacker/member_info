@@ -209,18 +209,17 @@ ShowMember.propTypes = {
 export default withTracker(({ match }) => {
 
   // Get access to Stuff documents.
-  var thisEmail = 'noone@nowhere.com';
+	var thisEmail = 'noone@nowhere.com';
 
   if (Roles.userIsInRole(Meteor.userId(), 'admin'))
   {
-//    thisEmail = 'jasonb123@gmail.com';
-//    thisEmail = 'terror@myspace.com';
-    thisEmail = 'bart1337@outlook.com';
-//    thisEmail = 'dominic.e.pion@gmail.com';
-//    thisEmail = 'jasonb123@gmail.com';
+	const query = new URLSearchParams(location.search)
+	thisEmail = query.get('showmember')
   } else {
     thisEmail = Meteor.user().emails[0].address;
   }
+  
+  console.log(thisEmail);
 
   const subscription = Meteor.subscribe('GetMyInfo');
   return {

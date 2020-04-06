@@ -3,7 +3,6 @@ import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
 import { Container, Table, Header, Loader } from 'semantic-ui-react';
 import { Members } from '/imports/api/member/Member';
-// import MemberItemAdmin from '/imports/ui/components/MemberItemAdmin';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
 import { withRouter, Link, useParams, Switch } from 'react-router-dom';
@@ -48,45 +47,27 @@ class ListMembersAdmin extends React.Component {
       alert('No file select');
       return;
     }
+	
+	Meteor.call('users.removeAll');
+    Meteor.call('members.removeAll');
+	
     let file = files[0];
     let that = this;
     let reader = new FileReader();
-    reader.onload = function(e) {
-		Meteor.call('members.uploadAll',file.name, e.target.result);
-      that.displayData(e.target.result);
+    reader.onload = async function(e) {
+		//Meteor.call('members.uploadAll',file.name, e.target.result);
+		//that.displayData(e.target.result);
+
+		Meteor.call('members.uploadAll',file.name, e.target.result, async function (err, res) {
+		  if (err) {
+			console.log(err);
+		  } else {
+			console.log('members uploaded');
+		  }
+		});
+
     };
     reader.readAsText(file);
-  }
-
-  xxxhandleFileSelect(event) {
-    console.log('upload members clicked');
-    event.preventDefault();
-
-/*     Meteor.call('users.removeAll');
-    Meteor.call('members.removeAll'); */
-	
-    var file = event.target.files[0]; //assuming you have only 1 file
-    if (!file) return;
-    var reader = new FileReader(); //create a reader according to HTML5 File API
-    reader.onload = function(event){          
-      var fileText = new utf8(reader.result) // convert to binary
-      Meteor.call('members.uploadAll',fileText);
-    }
-    reader.readAsText(file); //read the file as arraybuffer
-  }
-
-  reloadMembers(event) {
-    console.log('reload all members clicked');
-    event.preventDefault();
-    Meteor.call('users.removeAll');
-    Meteor.call('members.removeAll');
-    Meteor.call('members.importAll', async function (err, res) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log('members inserted');
-      }
-    });
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -99,10 +80,7 @@ class ListMembersAdmin extends React.Component {
 const data = this.state.data;
     return (
       <Container>
-        <Header as="h2" textAlign="center">Member List</Header>
-        <div>
-          <button className="btn btn-danger" onClick={this.reloadMembers.bind()}>Reload Members</button>
-        </div>
+        <Header as="h2" textAlign="center">Member List ({this.props.membercount})</Header>
         <div>
           To reload member data:
             </div>
@@ -116,7 +94,6 @@ const data = this.state.data;
               <Table.HeaderCell>FirstName</Table.HeaderCell>
               <Table.HeaderCell>LastName</Table.HeaderCell>
               <Table.HeaderCell>Email</Table.HeaderCell>
-              {/*               <Table.HeaderCell>&nbsp;</Table.HeaderCell> */}
               <Table.HeaderCell>Card</Table.HeaderCell>
               <Table.HeaderCell>Phone</Table.HeaderCell>
               <Table.HeaderCell>City</Table.HeaderCell>
@@ -134,38 +111,13 @@ const data = this.state.data;
 
 class MemberItemAdmin extends React.Component {
 
-  /*   resetMemberLogin(e) {
-      e.preventDefault();
-      var thisMember = e.target.id;
-      console.log(buttonName);
-      event.preventDefault();
-      Meteor.call('member.resetLogin', {thisMemberEmail: e.target.id}, function (err, res) {
-          if (err) {
-              console.log(err);
-          } else {
-              console.log('got member');
-          }
-      });
-    } */
-
   showMember(e) {
     e.preventDefault();
     var buttonName = e.target.id;
     console.log(buttonName);
     event.preventDefault();
-    Meteor.call('impersonate', userId, function (err) {
-      if (!err) {
-        Meteor.connection.setUserId(userId);
-        Router.go('member');
-      }
-    });
-    /*     Meteor.call('member.getOneByEmail', { thisMemberEmail: e.target.id }, function (err, res) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log('got member');
-          }
-        }); */
+	let history = props.history;
+	this.props.history.push("/member?showmember="+buttonName);
   }
 
   render() {
@@ -174,9 +126,6 @@ class MemberItemAdmin extends React.Component {
         <Table.Cell>{this.props.member.FirstName}</Table.Cell>
         <Table.Cell>{this.props.member.LastName}</Table.Cell>
         <Table.Cell>{this.props.member.email}</Table.Cell>
-{/*         <Table.Cell>
-          <button id={this.props.member.SS} onClick={this.resetMemberLogin}>&#8634;</button>
-        </Table.Cell> */}
         <Table.Cell>{this.props.member.Card}</Table.Cell>
         <Table.Cell>{formatPhoneNumber(this.props.member.Ph1)}</Table.Cell>
         <Table.Cell>{this.props.member.City}</Table.Cell>
@@ -208,6 +157,7 @@ export default withTracker(() => {
 
   return {
     members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
+	membercount: Members.find().count(),
     ready: subscription.ready(),
   };
 })(ListMembersAdmin);
