@@ -5,7 +5,6 @@ import { Container, Table, Header, Loader } from 'semantic-ui-react';
 import { Members } from '/imports/api/member/Member';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import { withRouter, Link, useParams, Switch } from 'react-router-dom';
 
 let formatPhoneNumber = (str) => {
   //Filter only numbers from the input
@@ -21,11 +20,6 @@ let formatPhoneNumber = (str) => {
   return null
 };
 
-showThisMember = (str) => {
-  this.setState(state => ({ pEmail: str }));
-  console.log(str);
-};
-
 /** Renders a table containing all of the Member documents. Use <MemberItemAdmin> to render each row. */
 class ListMembersAdmin extends React.Component {
 
@@ -34,40 +28,57 @@ class ListMembersAdmin extends React.Component {
     this.state = {
       data: null
     };
-    this.handleFileSelect = this.handleFileSelect.bind(this);
+    this.uploadAllMembers = this.uploadAllMembers.bind(this);
   }
 
   displayData(content) {
-    this.setState({data: content});
+    this.setState({ data: content });
   }
-  
-  handleFileSelect(evt) {
-    let files = evt.target.files;
-    if (!files.length) {
-      alert('No file select');
-      return;
+
+  uploadAllMembers(evt) {
+
+    if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
+
+      let files = evt.target.files;
+      if (!files.length) {
+        alert('No file select');
+        return;
+      }
+
+      Meteor.call('users.removeAll', async function (err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('deleted users');
+        }
+      });
+      Meteor.call('members.removeAll', async function (err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log('deleted members');
+        }
+      });
+
+      let file = files[0];
+      let that = this;
+      let reader = new FileReader();
+      reader.onload = async function (e) {
+        var data = JSON.parse(e.target.result);
+        data.memberData.forEach(function (item, index, array) {
+          if (item.Card > 0) {
+            Meteor.call('members.uploadEach', item, async function (err, res) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log('uploaded ' + item.email);
+              }
+            });
+          }
+        })
+      };
+      reader.readAsText(file);
     }
-	
-	Meteor.call('users.removeAll');
-    Meteor.call('members.removeAll');
-	
-    let file = files[0];
-    let that = this;
-    let reader = new FileReader();
-    reader.onload = async function(e) {
-		//Meteor.call('members.uploadAll',file.name, e.target.result);
-		//that.displayData(e.target.result);
-
-		Meteor.call('members.uploadAll',file.name, e.target.result, async function (err, res) {
-		  if (err) {
-			console.log(err);
-		  } else {
-			console.log('members uploaded');
-		  }
-		});
-
-    };
-    reader.readAsText(file);
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -77,7 +88,8 @@ class ListMembersAdmin extends React.Component {
 
   /** Render the page once subscriptions have been received. */
   renderPage() {
-const data = this.state.data;
+
+    const data = this.state.data;
     return (
       <Container>
         <Header as="h2" textAlign="center">Member List ({this.props.membercount})</Header>
@@ -85,8 +97,8 @@ const data = this.state.data;
           To reload member data:
             </div>
         <div>
-          <input type="file" name="filetoupload" id="selectfiletoupload" onChange={this.handleFileSelect} />
-{ data && <p> {data} </p> }
+          <input type="file" name="filetoupload" id="selectfiletoupload" onChange={this.uploadAllMembers} />
+          {data && <p> {data} </p>}
         </div>
         <Table celled>
           <Table.Header>
@@ -114,10 +126,9 @@ class MemberItemAdmin extends React.Component {
   showMember(e) {
     e.preventDefault();
     var buttonName = e.target.id;
-    console.log(buttonName);
+    //console.log(buttonName);
     event.preventDefault();
-	let history = props.history;
-	this.props.history.push("/member?showmember="+buttonName);
+    document.location.href = "#/member/search?showmember=" + buttonName;
   }
 
   render() {
@@ -130,7 +141,7 @@ class MemberItemAdmin extends React.Component {
         <Table.Cell>{formatPhoneNumber(this.props.member.Ph1)}</Table.Cell>
         <Table.Cell>{this.props.member.City}</Table.Cell>
         <Table.Cell>
-          <button id={this.props.member.email} onClick={this.showMember}>&#8594;</button>
+          <button id={this.props.member.email} onClick={this.showMember} >&#8594;</button>
         </Table.Cell>
       </Table.Row>
     );
@@ -152,12 +163,10 @@ ListMembersAdmin.propTypes = {
 export default withTracker(() => {
   // Get access to Member documents.
   const subscription = Meteor.subscribe('AdminListMembers');
-  var xxx = Members.find().count();
-  //console.log(xxx + ' members');
 
   return {
     members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
-	membercount: Members.find().count(),
+    membercount: Members.find().count(),
     ready: subscription.ready(),
   };
 })(ListMembersAdmin);

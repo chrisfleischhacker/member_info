@@ -2,10 +2,19 @@ import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
 import { Members } from '../member/Member';
 
-Meteor.publish('GetMyInfo', function publish() {
+/* Meteor.publish('GetMyInfo', function publish() {
   if (this.userId) 
   {
     return Members.find();
+  }
+  return this.ready();
+}); */
+
+Meteor.publish('GetMyInfo', function(thisEmail){
+  //console.log(thisEmail);
+  if (this.userId) 
+  {
+    return Members.find({ email: thisEmail });
   }
   return this.ready();
 });
@@ -18,7 +27,7 @@ Meteor.publish('AdminListMembers', function publish() {
   return this.ready();
 });
 
-Meteor.publish('AdminThisMember', function publish() {
+Meteor.publish('AdminThisMember', function(thisMemberEmail) {
   if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
     return Members.find({ email: thisMemberEmail });
   }

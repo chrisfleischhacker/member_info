@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { Link, Redirect } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
-import { Container, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
 import { Roles } from 'meteor/alanning:roles';
+import PropTypes from 'prop-types';
+import { Redirect } from 'react-router-dom';
+import { Container, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
 
 /**
  * Signin page overrides the form’s submit event and call Meteor’s loginWithPassword().
@@ -36,23 +36,17 @@ export default class Signin extends React.Component {
 
   /** Render the signin form. */
   render() {
-//    const { from } = this.props.location.state || { from: { pathname: '/member' } };
-  
-const { from } = this.props.location.state || Roles.userIsInRole(Meteor.userId(), 'admin') 
-  ? { from: { pathname: '/listmembers' } } 
-  : { from: { pathname: '/member' } };
 
-// if correct authentication, redirect to page instead of login screen
+    //	  const { from } = this.props.location.state || { from: { pathname: '/' } };
+    const { from } = this.props.location.state || Roles.userIsInRole(Meteor.userId(), 'admin')
+      ? { from: { pathname: '/listmembers' } }
+      : { from: { pathname: '/member' } };
 
-if (this.state.redirectToReferer) {
-      return <Redirect to={from}/>;
+    // if correct authentication, redirect to page instead of login screen
+
+    if (this.state.redirectToReferer) {
+      return <Redirect to={from} />;
     }
-
-/*     if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
-      return(<Redirect to={{ pathname: "/listmembers"}}/>);
-    }else{
-      return(<Redirect to={{ pathname: "/member"}}/>);
-    } */
 
     // Otherwise return the Login form.
     return (
@@ -82,18 +76,18 @@ if (this.state.redirectToReferer) {
                   type="password"
                   onChange={this.handleChange}
                 />
-                <Form.Button content="Submit"/>
+                <Form.Button content="Submit" />
               </Segment>
             </Form>
             {this.state.error === '' ? (
               ''
             ) : (
-              <Message
-                error
-                header="Login was not successful"
-                content={this.state.error}
-              />
-            )}
+                <Message
+                  error
+                  header="Login was not successful"
+                  content={this.state.error}
+                />
+              )}
           </Grid.Column>
         </Grid>
       </Container>
