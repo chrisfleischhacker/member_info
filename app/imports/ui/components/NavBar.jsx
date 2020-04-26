@@ -13,6 +13,7 @@ class NavBar extends React.Component {
     return (
       <Menu style={menuStyle} attached="top" borderless>
 
+
         <Menu.Item position="right">
           {this.props.currentUser === '' ? (
             <Dropdown text="Login&nbsp;" pointing="top right" icon={'user'}>

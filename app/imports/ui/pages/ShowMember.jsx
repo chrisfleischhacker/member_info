@@ -7,12 +7,10 @@ import { Grid, Loader, Header, Segment, Icon, Label, Menu, Table } from 'semanti
 import PropTypes from 'prop-types';
 import 'uniforms-bridge-simple-schema-2'; // required for Uniforms
 import { Link } from 'react-router-dom';
+import { ReactiveVar } from 'meteor/reactive-var';
 
 let formatPhoneNumber = (str) => {
-  //Filter only numbers from the input
   let cleaned = ('' + str).replace(/\D/g, '');
-
-  //Check if the input is of correct length
   let match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
 
   if (match) {
@@ -22,10 +20,12 @@ let formatPhoneNumber = (str) => {
   return null
 };
 
-/** Renders the Page for editing a single document. */
 class ShowMember extends React.Component {
 
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
+  constructor(props) {
+    super(props);
+  }
+
   render() {
 
     return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
@@ -37,13 +37,12 @@ class ShowMember extends React.Component {
       <Grid container centered>
         <Grid.Column>
           <Header as="h2" textAlign="center">{this.props.doc.FirstName} {this.props.doc.MiddleName} {this.props.doc.LastName}</Header>
-
           {
             (Roles.userIsInRole(Meteor.userId(), 'admin'))
               ? <h3><Link to={'/listmembers/'}> &lt; Back to List</Link></h3>
               : <div></div>
           }
-
+          <a href="mailto://help@pipefitters539.com" key="emailChangeLink">Change My Info</a>
           <Table size='small' compact striped>
             <Table.Body>
               <Table.Row>
@@ -55,7 +54,7 @@ class ShowMember extends React.Component {
                 <Table.Cell style={{ width: "33%" }}>SSN:&nbsp;&nbsp;{this.props.doc.SS}</Table.Cell>
               </Table.Row>
               <Table.Row>
-                <Table.Cell>Email:&nbsp;&nbsp;<a href={this.props.doc.email}>{this.props.doc.email}</a></Table.Cell>
+                <Table.Cell>Email:&nbsp;{this.props.doc.email}</Table.Cell>
                 <Table.Cell>Phone:&nbsp;&nbsp;{formatPhoneNumber(this.props.doc.Ph1)}</Table.Cell>
                 <Table.Cell>Phone:&nbsp;&nbsp;{formatPhoneNumber(this.props.doc.Ph2)}</Table.Cell>
               </Table.Row>
@@ -194,7 +193,6 @@ class ListJobs extends React.Component {
   }
 }
 
-/** Require a document to be passed to this component. */
 ListJobs.propTypes = {
   jobs: PropTypes.object,
 };
@@ -205,26 +203,22 @@ ShowMember.propTypes = {
   ready: PropTypes.bool.isRequired,
 };
 
-/** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
-
 export default withTracker(({ match }) => {
 
+  import { selectedEmail } from '/imports/ui/pages/ListMembersAdmin';
+  //console.log(selectedEmail);
   var thisEmail;
-
   if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
-    thisEmail = window.location.toString().split('=')[1];
-  } else if (Meteor.userId() !== null && !Roles.userIsInRole(Meteor.userId(), 'admin')) {
-     if (window.location.toString().split('=')[1]) {
-      thisEmail = window.location.toString().split('=')[1];      
-    } else {
-      thisEmail = Meteor.user().emails[0].address;
-    }    
+    thisEmail = selectedEmail.get();
+  } else {
+    thisEmail = Meteor.user().emails[0].address;
   }
 
-  const subscription = Meteor.subscribe('GetMyInfo', thisEmail.toLowerCase());
-  return {
-    doc: Members.findOne(),
-    ready: subscription.ready(),
-  };
+const subscription = Meteor.subscribe('GetMyInfo', thisEmail.toLowerCase());
 
-})(ShowMember);
+return {
+  doc: Members.findOne({ email: thisEmail.toLowerCase() }),
+  ready: subscription.ready(),
+};
+
+}) (ShowMember);

@@ -1,10 +1,15 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
+import { Redirect } from 'react-router-dom';
 import { Roles } from 'meteor/alanning:roles';
 import { Container, Table, Header, Loader } from 'semantic-ui-react';
 import { Members } from '/imports/api/member/Member';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
+import Upload from '/imports/ui/components/Upload';
+import { ReactiveVar } from 'meteor/reactive-var';
+
+let selEmail = new ReactiveVar('non');
 
 let formatPhoneNumber = (str) => {
   //Filter only numbers from the input
@@ -25,60 +30,6 @@ class ListMembersAdmin extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      data: null
-    };
-    this.uploadAllMembers = this.uploadAllMembers.bind(this);
-  }
-
-  displayData(content) {
-    this.setState({ data: content });
-  }
-
-  uploadAllMembers(evt) {
-
-    if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
-
-      let files = evt.target.files;
-      if (!files.length) {
-        alert('No file select');
-        return;
-      }
-
-      Meteor.call('users.removeAll', async function (err, res) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('deleted users');
-        }
-      });
-      Meteor.call('members.removeAll', async function (err, res) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log('deleted members');
-        }
-      });
-
-      let file = files[0];
-      let that = this;
-      let reader = new FileReader();
-      reader.onload = async function (e) {
-        var data = JSON.parse(e.target.result);
-        data.memberData.forEach(function (item, index, array) {
-          if (item.Card > 0) {
-            Meteor.call('members.uploadEach', item, async function (err, res) {
-              if (err) {
-                console.log(err);
-              } else {
-                console.log('uploaded ' + item.email);
-              }
-            });
-          }
-        })
-      };
-      reader.readAsText(file);
-    }
   }
 
   /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
@@ -89,17 +40,10 @@ class ListMembersAdmin extends React.Component {
   /** Render the page once subscriptions have been received. */
   renderPage() {
 
-    const data = this.state.data;
     return (
       <Container>
         <Header as="h2" textAlign="center">Member List ({this.props.membercount})</Header>
-        <div>
-          To reload member data:
-            </div>
-        <div>
-          <input type="file" name="filetoupload" id="selectfiletoupload" onChange={this.uploadAllMembers} />
-          {data && <p> {data} </p>}
-        </div>
+        <Upload />
         <Table celled>
           <Table.Header>
             <Table.Row>
@@ -125,10 +69,12 @@ class MemberItemAdmin extends React.Component {
 
   showMember(e) {
     e.preventDefault();
-    var buttonName = e.target.id;
-    //console.log(buttonName);
-    event.preventDefault();
-    document.location.href = "#/member/search?showmember=" + buttonName;
+    Tracker.autorun(function () {
+      selEmail.set(e.target.id);
+      //console.log(selEmail);
+      export const selectedEmail = selEmail;
+      document.location.href = "#/member";
+    });
   }
 
   render() {
@@ -165,8 +111,10 @@ export default withTracker(() => {
   const subscription = Meteor.subscribe('AdminListMembers');
 
   return {
-    members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
-    membercount: Members.find().count(),
+//    members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
+members: Members.find({},{sort: {LastName: 1}}).fetch(),
+//members: Members.find({},{sort: {LastName: 1}, limit: 10}).fetch(),
+membercount: Members.find().count(),
     ready: subscription.ready(),
   };
 })(ListMembersAdmin);

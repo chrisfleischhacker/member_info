@@ -33,3 +33,4 @@ alanning:roles                   # https://github.com/alanning/meteor-roles
 
 # Prototyping only
 momentjs:moment
+deanius:promise
