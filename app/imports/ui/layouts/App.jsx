@@ -8,6 +8,7 @@ import NavBar from '../components/NavBar';
 //import Landing from '../pages/Landing';
 import ShowMember from '../pages/ShowMember';
 import ListMembersAdmin from '../pages/ListMembersAdmin';
+import UploadData from '../pages/UploadData';
 import Signin from '../pages/Signin';
 import Signout from '../pages/Signout';
 import NotFound from '../pages/NotFound';
@@ -23,6 +24,7 @@ class App extends React.Component {
           <Route exact path="/signin" component={Signin}/>
           <ProtectedRoute exact path="/member" component={ShowMember}/>
           <AdminProtectedRoute exact path="/listmembers" component={ListMembersAdmin}/>
+          <AdminProtectedRoute exact path="/uploaddata" component={UploadData}/>
           <ProtectedRoute exact path="/signout" component={Signout}/>
           <Route component={NotFound}/>
         </Switch>

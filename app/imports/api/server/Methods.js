@@ -4,6 +4,7 @@ import { Members } from "../member/Member";
 
 async function parseTheData(data) {
   let promise = new Promise((resolve, reject) => {
+    console.log('import started ' + moment().format('LTS'))
     data.memberData.forEach(function (item, index, array) {
       if (item.Card > 0) {
         Accounts.createUser({
@@ -17,6 +18,8 @@ async function parseTheData(data) {
     resolve(true);
   });
   let result = await promise;
+  resolve = Members.find().count();
+  console.log('import finished ' + moment().format('LTS') + ' ' + resolve + ' records uploaded');
 };
 
 Meteor.methods({
