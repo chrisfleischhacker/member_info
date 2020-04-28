@@ -2,3 +2,4 @@
 
 import './fixtures.js';
 import './register-apis.js';
+import './accounts.js';

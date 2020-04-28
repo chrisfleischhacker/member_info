@@ -5,15 +5,13 @@ import 'semantic-ui-css/semantic.css';
 import { Roles } from 'meteor/alanning:roles';
 import { HashRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import NavBar from '../components/NavBar';
-//import Landing from '../pages/Landing';
+import Landing from '../pages/Landing';
 import ShowMember from '../pages/ShowMember';
 import ListMembersAdmin from '../pages/ListMembersAdmin';
 import UploadData from '../pages/UploadData';
 import Signin from '../pages/Signin';
 import Signout from '../pages/Signout';
-import NotFound from '../pages/NotFound';
 
-/** Top-level layout component for this application. Called in imports/startup/client/startup.jsx. */
 class App extends React.Component {
   render() {
     return (
@@ -21,12 +19,13 @@ class App extends React.Component {
       <div>
         <NavBar/>
         <Switch>
+          <Route exact path="/" component={Landing}/>
           <Route exact path="/signin" component={Signin}/>
+          <ProtectedRoute exact path="/signout" component={Signout}/>
           <ProtectedRoute exact path="/member" component={ShowMember}/>
           <AdminProtectedRoute exact path="/listmembers" component={ListMembersAdmin}/>
           <AdminProtectedRoute exact path="/uploaddata" component={UploadData}/>
-          <ProtectedRoute exact path="/signout" component={Signout}/>
-          <Route component={NotFound}/>
+          <Route component={Landing}/>
         </Switch>
       </div>
     </Router>
@@ -34,11 +33,6 @@ class App extends React.Component {
   }
 }
 
-/**
- * ProtectedRoute (see React Router v4 sample)
- * Checks for Meteor login before routing to the requested page, otherwise goes to signin page.
- * @param {any} { component: Component, ...rest }
- */
 const ProtectedRoute = ({ component: Component, ...rest }) => (
   <Route
     {...rest}
@@ -52,11 +46,6 @@ const ProtectedRoute = ({ component: Component, ...rest }) => (
   />
 );
 
-/**
- * AdminProtectedRoute (see React Router v4 sample)
- * Checks for Meteor login and admin role before routing to the requested page, otherwise goes to signin page.
- * @param {any} { component: Component, ...rest }
- */
 const AdminProtectedRoute = ({ component: Component, ...rest }) => (
     <Route
         {...rest}
@@ -71,13 +60,11 @@ const AdminProtectedRoute = ({ component: Component, ...rest }) => (
     />
 );
 
-/** Require a component and location to be passed to each ProtectedRoute. */
 ProtectedRoute.propTypes = {
   component: PropTypes.func.isRequired,
   location: PropTypes.object,
 };
 
-/** Require a component and location to be passed to each AdminProtectedRoute. */
 AdminProtectedRoute.propTypes = {
   component: PropTypes.func.isRequired,
   location: PropTypes.object,

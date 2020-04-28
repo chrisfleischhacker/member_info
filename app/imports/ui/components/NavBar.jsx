@@ -13,21 +13,28 @@ class NavBar extends React.Component {
     return (
       <Menu style={menuStyle} attached="top" borderless>
 
+        {this.props.currentUser && !Roles.userIsInRole(Meteor.userId(), 'admin')? (
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/member" key='list'>Member Info</Menu.Item>
+        ) : ''}
+        {Roles.userIsInRole(Meteor.userId(), 'admin') ? (
+          [<Menu.Item as={NavLink} activeClassName="active" exact to="/uploaddata" key='add'>Reload Members</Menu.Item>,
+          <Menu.Item as={NavLink} activeClassName="active" exact to="/listmembers" key='list'>List Members</Menu.Item>]
+        ) : ''}
 
         <Menu.Item position="right">
           {this.props.currentUser === '' ? (
             <Dropdown text="Login&nbsp;" pointing="top right" icon={'user'}>
               <Dropdown.Menu>
-                <Dropdown.Item icon="user" text="Sign In" as={NavLink} exact to="/signin"/>
+                <Dropdown.Item icon="user" text="Sign In" as={NavLink} exact to="/signin" />
               </Dropdown.Menu>
             </Dropdown>
           ) : (
-            <Dropdown text={this.props.currentUser} pointing="top right" icon={'user'}>
-              <Dropdown.Menu>
-                <Dropdown.Item icon="sign out" text="Sign Out" as={NavLink} exact to="/signout"/>
-              </Dropdown.Menu>
-            </Dropdown>
-          )}
+              <Dropdown text={this.props.currentUser} pointing="top right" icon={'user'}>
+                <Dropdown.Menu>
+                  <Dropdown.Item icon="sign out" text="Sign Out" as={NavLink} exact to="/signout" />
+                </Dropdown.Menu>
+              </Dropdown>
+            )}
         </Menu.Item>
       </Menu>
     );

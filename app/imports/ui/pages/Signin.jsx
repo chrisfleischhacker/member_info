@@ -1,8 +1,7 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { Roles } from 'meteor/alanning:roles';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
 import { Container, Form, Grid, Header, Message, Segment } from 'semantic-ui-react';
 
 /**
@@ -36,18 +35,11 @@ export default class Signin extends React.Component {
 
   /** Render the signin form. */
   render() {
-
-    //	  const { from } = this.props.location.state || { from: { pathname: '/' } };
-    const { from } = this.props.location.state || Roles.userIsInRole(Meteor.userId(), 'admin')
-      ? { from: { pathname: '/listmembers' } }
-      : { from: { pathname: '/member' } };
-
+    const { from } = this.props.location.state || { from: { pathname: '/' } };
     // if correct authentication, redirect to page instead of login screen
-
     if (this.state.redirectToReferer) {
-      return <Redirect to={from} />;
+      return <Redirect to={from}/>;
     }
-
     // Otherwise return the Login form.
     return (
       <Container>
@@ -76,18 +68,18 @@ export default class Signin extends React.Component {
                   type="password"
                   onChange={this.handleChange}
                 />
-                <Form.Button content="Submit" />
+                <Form.Button content="Submit"/>
               </Segment>
             </Form>
             {this.state.error === '' ? (
               ''
             ) : (
-                <Message
-                  error
-                  header="Login was not successful"
-                  content={this.state.error}
-                />
-              )}
+              <Message
+                error
+                header="Login was not successful"
+                content={this.state.error}
+              />
+            )}
           </Grid.Column>
         </Grid>
       </Container>
