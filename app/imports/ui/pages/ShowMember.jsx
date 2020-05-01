@@ -5,7 +5,7 @@ import { Roles } from 'meteor/alanning:roles';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Grid, Loader, Header, Segment, Icon, Label, Menu, Table } from 'semantic-ui-react';
 import PropTypes from 'prop-types';
-import 'uniforms-bridge-simple-schema-2'; // required for Uniforms
+import 'uniforms-bridge-simple-schema-2';
 import { Link } from 'react-router-dom';
 import { ReactiveVar } from 'meteor/reactive-var';
 
@@ -39,7 +39,7 @@ class ShowMember extends React.Component {
           <Header as="h2" textAlign="center">{this.props.doc.FirstName} {this.props.doc.MiddleName} {this.props.doc.LastName}</Header>
           {
             (Roles.userIsInRole(Meteor.userId(), 'admin'))
-              ? <h3><Link to={'/listmembers/'}> &lt; Back to List</Link></h3>
+              ? <h3><Link to={'/memberlist/'}> &lt; Back to List</Link></h3>
               : <div></div>
           }
           <a href="mailto://help@pipefitters539.com" key="emailChangeLink">Change My Info</a>
@@ -205,7 +205,7 @@ ShowMember.propTypes = {
 
 export default withTracker(({ match }) => {
 
-  import { selectedEmail } from '/imports/ui/pages/ListMembersAdmin';
+  import { selectedEmail } from '/imports/ui/pages/MemberList';
   //console.log(selectedEmail);
   var thisEmail;
   if (Roles.userIsInRole(Meteor.userId(), 'admin')) {
@@ -214,11 +214,11 @@ export default withTracker(({ match }) => {
     thisEmail = Meteor.user().emails[0].address;
   }
 
-const subscription = Meteor.subscribe('GetMyInfo', thisEmail.toLowerCase());
+  const subscription = Meteor.subscribe('GetMyInfo', thisEmail.toLowerCase());
 
-return {
-  doc: Members.findOne({ email: thisEmail.toLowerCase() }),
-  ready: subscription.ready(),
-};
+  return {
+    doc: Members.findOne({ email: thisEmail.toLowerCase() }),
+    ready: subscription.ready(),
+  };
 
-}) (ShowMember);
+})(ShowMember);

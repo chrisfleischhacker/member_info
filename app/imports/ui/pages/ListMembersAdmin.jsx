@@ -10,10 +10,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 let selEmail = new ReactiveVar('non');
 
 let formatPhoneNumber = (str) => {
-  //Filter only numbers from the input
   let cleaned = ('' + str).replace(/\D/g, '');
-
-  //Check if the input is of correct length
   let match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
 
   if (match) {
@@ -23,19 +20,16 @@ let formatPhoneNumber = (str) => {
   return null
 };
 
-/** Renders a table containing all of the Member documents. Use <MemberItemAdmin> to render each row. */
 class ListMembersAdmin extends React.Component {
 
   constructor(props) {
     super(props);
   }
 
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
-  /** Render the page once subscriptions have been received. */
   renderPage() {
 
     return (
@@ -92,27 +86,22 @@ class MemberItemAdmin extends React.Component {
   }
 }
 
-/** Require a document to be passed to this component. */
 MemberItemAdmin.propTypes = {
   member: PropTypes.object.isRequired,
 };
 
-/** Require an array of Member documents in the props. */
 ListMembersAdmin.propTypes = {
   members: PropTypes.array.isRequired,
   ready: PropTypes.bool.isRequired,
 };
 
-/** withTracker connects Meteor data to React components. https://guide.meteor.com/react.html#using-withTracker */
 export default withTracker(() => {
-  // Get access to Member documents.
+
   const subscription = Meteor.subscribe('AdminListMembers');
 
   return {
-//    members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
-members: Members.find({},{sort: {LastName: 1}}).fetch(),
-//members: Members.find({},{sort: {LastName: 1}, limit: 10}).fetch(),
-membercount: Members.find().count(),
+    members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
+    membercount: Members.find().count(),
     ready: subscription.ready(),
   };
 })(ListMembersAdmin);

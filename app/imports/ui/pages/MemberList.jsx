@@ -11,10 +11,7 @@ import { ReactiveVar } from 'meteor/reactive-var';
 let selEmail = new ReactiveVar('non');
 
 let formatPhoneNumber = (str) => {
-  //Filter only numbers from the input
   let cleaned = ('' + str).replace(/\D/g, '');
-
-  //Check if the input is of correct length
   let match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
 
   if (match) {
@@ -24,23 +21,26 @@ let formatPhoneNumber = (str) => {
   return null
 };
 
-/** Renders a table containing all of the Member documents. Use <MemberItemAdmin> to render each row. */
 class MemberList extends React.Component {
 
   constructor(props) {
     super(props);
   }
 
+  showMember(thisEmail) {
+    Tracker.autorun(function () {
+      selEmail.set(thisEmail);
+      //console.log(selEmail);
+      export const selectedEmail = selEmail;
+      document.location.href = "#/member";
+    });
+  }
 
-
-  /** If the subscription(s) have been received, render the page, otherwise show a loading icon. */
   render() {
     return (this.props.ready) ? this.renderPage() : <Loader active>Getting data</Loader>;
   }
 
-  /** Render the page once subscriptions have been received. */
   renderPage() {
-
 
     const styleConfig = {
       icons: {
@@ -60,8 +60,6 @@ class MemberList extends React.Component {
         PreviousButton: 'griddle-previous-button',
         Row: 'griddle-row',
         RowDefinition: 'griddle-row-definition',
-        Settings: 'griddle-settings',
-        SettingsToggle: 'griddle-settings-toggle',
         Table: 'griddle-table',
         TableBody: 'griddle-table-body',
         TableHeading: 'griddle-table-heading',
@@ -73,20 +71,33 @@ class MemberList extends React.Component {
     }
 
     return (
-      <Griddle
-      data={this.props.members}
-      plugins={[plugins.LocalPlugin]}
-      styleConfig={styleConfig}
-      >
-    <RowDefinition>
-      <ColumnDefinition id="FirstName" title="First Name" />
-      <ColumnDefinition id="LastName" title="Last Name" />
-      <ColumnDefinition id="email" title="Email" />
-      <ColumnDefinition id="Card" title="Card #" />
-      <ColumnDefinition id="Ph1" title="Phone" />
-      <ColumnDefinition id="City" title="City" />
-    </RowDefinition>
-  </Griddle>
+      <div className='memberGrid'>
+        <Upload />
+        <Griddle
+          data={this.props.members}
+          plugins={[plugins.LocalPlugin]}
+          styleConfig={styleConfig}
+          components={{
+            SettingsToggle: () => <span />,
+            CellEnhancer: OriginalComponent =>
+              props => (
+                <OriginalComponent
+                  {...props}
+                  onClick={() => this.showMember(props.value)}
+                />
+              ),
+          }}
+        >
+          <RowDefinition>
+            <ColumnDefinition id="FirstName" title="First Name" />
+            <ColumnDefinition id="LastName" title="Last Name" />
+            <ColumnDefinition id="email" title="Email" />
+            <ColumnDefinition id="Card" title="Card #" />
+            <ColumnDefinition id="Ph1" title="Phone" />
+            <ColumnDefinition id="City" title="City" />
+          </RowDefinition>
+        </Griddle>
+      </div>
     );
   }
 }
@@ -99,8 +110,8 @@ MemberList.propTypes = {
 export default withTracker(() => {
   const subscription = Meteor.subscribe('AdminListMembers');
   return {
-members: Members.find({},{sort: {LastName: 1}}).fetch(),
-membercount: Members.find().count(),
+    members: Members.find({}, { sort: { LastName: 1 } }).fetch(),
+    membercount: Members.find().count(),
     ready: subscription.ready(),
   };
 })(MemberList);
