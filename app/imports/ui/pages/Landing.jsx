@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
-import PropTypes from 'prop-types';
 import { Grid, Image } from 'semantic-ui-react';
 
 /** A simple static component to render some text for the landing page. */
@@ -17,7 +16,7 @@ class Landing extends React.Component {
     const isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin');
 
     if (isAdmin) {
-      return <Redirect to='/listmembers'/>;
+      return <Redirect to='/memberlist'/>;
     } else if (isLogged){
       return <Redirect to='/member'/>;
     } else {

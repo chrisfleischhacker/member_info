@@ -1,14 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
-import { Roles } from "meteor/alanning:roles";
+import { Members } from '/imports/api/member/Member';
 import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
+import { Loader } from 'semantic-ui-react';
 
 class Upload extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   uploadAllMembers = function (evt) {
     let files = evt.target.files;
@@ -39,8 +36,6 @@ class Upload extends React.Component {
     reader.onloadend = async function (e) {
 
       console.log('import started ' + new Date())
-//      await Meteor.callPromise(Meteor.call("members.removeAll"));
-//      await Meteor.callPromise(Meteor.call("users.removeAll"));
       await Meteor.callPromise('members.uploadAll', file.name, e.target.result, function (err, res) {
         if (err) {
           console.log(err);
@@ -48,18 +43,7 @@ class Upload extends React.Component {
           console.log('members uploaded ' + res);
         }
       });
-
-      /*       Meteor.call('members.uploadAll', file.name, e.target.result, function (err, res) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log('members uploaded');
-                }
-              });
-       */
-
       console.log('import finished ' + new Date())
-
     };
     reader.readAsText(file);
 
@@ -67,8 +51,13 @@ class Upload extends React.Component {
 
   render() {
 
+
     return (
-      <div>
+
+      <div className='memberGrid'>
+        <div>
+          <h2>({this.props.membercount}) Members</h2>
+        </div>
         <div>To reload member data:</div>
         <div>
           <input
@@ -77,19 +66,15 @@ class Upload extends React.Component {
             id="selectfiletoupload"
             onChange={this.uploadAllMembers}
           />
-
         </div>
       </div>
     );
   }
 }
 
-Upload.propTypes = {
-  currentUser: PropTypes.string
-};
-
-const UploadContainer = withTracker(() => ({
-  currentUser: Meteor.user() ? Meteor.user().username : ""
-}))(Upload);
-
-export default withRouter(UploadContainer);
+export default withTracker(() => {
+  const subscription = Meteor.subscribe('MemberCount');
+  return {
+    membercount: Members.find().count(),
+  };
+})(Upload);

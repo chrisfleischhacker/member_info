@@ -29,10 +29,11 @@ class MemberList extends React.Component {
 
   showMember(thisEmail) {
     Tracker.autorun(function () {
-      selEmail.set(thisEmail);
-      //console.log(selEmail);
-      export const selectedEmail = selEmail;
-      document.location.href = "#/member";
+      if (thisEmail.toString().includes("@")) {
+        selEmail.set(thisEmail);
+        export const selectedEmail = selEmail;
+        document.location.href = "#/member";
+      }
     });
   }
 
@@ -68,7 +69,9 @@ class MemberList extends React.Component {
         TableHeadingCellDescending: 'griddle-heading-descending',
       },
       styles: {},
-    }
+    };
+
+    const PhoneNumber = ({ value }) => <span>{formatPhoneNumber(value.toString())}</span>;
 
     return (
       <div className='memberGrid'>
@@ -93,7 +96,7 @@ class MemberList extends React.Component {
             <ColumnDefinition id="LastName" title="Last Name" />
             <ColumnDefinition id="email" title="Email" />
             <ColumnDefinition id="Card" title="Card #" />
-            <ColumnDefinition id="Ph1" title="Phone" />
+            <ColumnDefinition id="Ph1" title="Phone" customComponent={PhoneNumber} />
             <ColumnDefinition id="City" title="City" />
           </RowDefinition>
         </Griddle>

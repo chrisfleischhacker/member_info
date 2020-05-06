@@ -2,6 +2,17 @@ import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
 import { Members } from '../member/Member';
 
+Meteor.publish('MemberCount', function publish() {
+  if (this.userId && Roles.userIsInRole(this.userId, 'admin')) {
+    return Members.find({}, {
+      fields: {
+        _id: 1
+      }
+    });
+  }
+  return this.ready();
+});
+
 Meteor.publish('GetMyInfo', function (thisEmail) {
   //console.log(thisEmail);
   if (this.userId) {

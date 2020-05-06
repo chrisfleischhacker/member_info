@@ -1,5 +1,5 @@
 import React from 'react';
-import { Members, MembersSchema } from '/imports/api/member/Member';
+import { Members } from '/imports/api/member/Member';
 import { Meteor } from 'meteor/meteor';
 import { Roles } from 'meteor/alanning:roles';
 import { withTracker } from 'meteor/react-meteor-data';
