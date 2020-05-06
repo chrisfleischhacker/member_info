@@ -4,7 +4,6 @@ import Griddle, { plugins, RowDefinition, ColumnDefinition } from 'griddle-react
 import { Members } from '/imports/api/member/Member';
 import { withTracker } from 'meteor/react-meteor-data';
 import PropTypes from 'prop-types';
-import Upload from '/imports/ui/components/Upload';
 import { Loader } from 'semantic-ui-react';
 import { ReactiveVar } from 'meteor/reactive-var';
 
@@ -71,30 +70,30 @@ class MemberList extends React.Component {
       styles: {},
     };
 
+    const EmailAddress = ({ value }) => <span onClick={() => this.showMember(value)} style={{ color: '#0000AA', 'text-decoration-line': 'underline' }}>{value}</span>;
     const PhoneNumber = ({ value }) => <span>{formatPhoneNumber(value.toString())}</span>;
 
     return (
       <div className='memberGrid'>
-        <Upload />
         <Griddle
           data={this.props.members}
           plugins={[plugins.LocalPlugin]}
           styleConfig={styleConfig}
           components={{
             SettingsToggle: () => <span />,
-            CellEnhancer: OriginalComponent =>
+/*             CellEnhancer: OriginalComponent =>
               props => (
                 <OriginalComponent
                   {...props}
                   onClick={() => this.showMember(props.value)}
                 />
-              ),
+              ), */
           }}
         >
           <RowDefinition>
             <ColumnDefinition id="FirstName" title="First Name" />
             <ColumnDefinition id="LastName" title="Last Name" />
-            <ColumnDefinition id="email" title="Email" />
+            <ColumnDefinition id="email" title="Email"  customComponent={EmailAddress} />
             <ColumnDefinition id="Card" title="Card #" />
             <ColumnDefinition id="Ph1" title="Phone" customComponent={PhoneNumber} />
             <ColumnDefinition id="City" title="City" />
